@@ -43,6 +43,7 @@ const codaAlternatives = {
 const links = {
   learnMore: 'https://coda.io/d/Coda-Inclusivity-Bot_dFD9P7TjITA/Coda-Inclusivity-Bot_sub4b',
   howTheBotWorks: 'https://coda.io/d/Coda-Inclusivity-Bot_dFD9P7TjITA/How-does-the-Inclusivity-Bot-work_suQIq',
+  faq: 'https://coda.io/d/Coda-Inclusivity-Bot_dFD9P7TjITA/FAQ_suGEb',
 }
 
 const NUDGE_FOOTER = `<${links.learnMore}|Learn more about inclusive language>
@@ -61,7 +62,7 @@ Someone in this channel added me. Here's what you need to know:
 • I'm only a bot, so I don't understand context. Just keywords. I might get it wrong sometimes!
 • I'm a learning tool, not a performance management tool. Your manager can't see my responses.
 • No identifiable data is being tracked or shared.
-For more info, check out my FAQ (coming soon).`;
+For more info, check out my <${links.faq}|FAQ>.`;
 
 const NUDGE_PREAMBLE = `Hey there! We champion right over familiar at Coda—and that includes the words we use.
 
@@ -77,7 +78,7 @@ async function populateNonInclusiveWords() {
   const data = await response.json();
   const newNonInclusiveWords = {};
   for (const row of data.items) {
-    const phraseToAvoid = row.values[phrasesToAvoidColumnId].toLowerCase();
+    const phraseToAvoid = row.values[phrasesToAvoidColumnId].toLowerCase().trim();
     newNonInclusiveWords[phraseToAvoid] = row;
   }
   nonInclusiveWords = newNonInclusiveWords;
@@ -314,7 +315,7 @@ app.command("/intro", async ({ command, ack, say }) => {
 
   console.log("Inclusivity bot app is running!");
 
-  populateNonInclusiveWords();
+  await populateNonInclusiveWords();
   setInterval(populateNonInclusiveWords, WORD_LIST_REFRESH_FREQUENCY_MS);
   console.log("Non-inclusive words populated");
 })();
