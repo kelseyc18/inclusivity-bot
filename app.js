@@ -40,6 +40,17 @@ const codaAlternatives = {
   dateColumnId: "c-ZVIg_wmLvH"
 };
 
+const links = {
+  learnMore: 'https://coda.io/d/Coda-Inclusivity-Bot_dFD9P7TjITA/Coda-Inclusivity-Bot_sub4b',
+  howTheBotWorks: 'https://coda.io/d/Coda-Inclusivity-Bot_dFD9P7TjITA/How-does-the-Inclusivity-Bot-work_suQIq',
+}
+
+const NUDGE_FOOTER = `<${links.learnMore}|Learn more about inclusive language>
+<${links.howTheBotWorks}|Why you're seeing this message>`;
+
+// Once a day
+const WORD_LIST_REFRESH_FREQUENCY_MS = 24 * 60 * 60 * 1000;
+
 const INTRODUCTION_MESSAGE = `Hello! 👋
 
 I'm new here - I'm InclusivityBot 🤖
@@ -53,6 +64,7 @@ Someone in this channel added me. Here's what you need to know:
 For more info, check out my FAQ (coming soon).`;
 
 const NUDGE_PREAMBLE = `Hey there! We champion right over familiar at Coda—and that includes the words we use.
+
 `;
 
 let nonInclusiveWords = {};
@@ -63,11 +75,12 @@ async function populateNonInclusiveWords() {
   const url = `https://coda.io/apis/v1/docs/${codaSourceDocId}/tables/${gridId}/rows`;
   const response = await fetch(url, { headers });
   const data = await response.json();
-  nonInclusiveWords = {};
+  const newNonInclusiveWords = {};
   for (const row of data.items) {
     const phraseToAvoid = row.values[phrasesToAvoidColumnId].toLowerCase();
-    nonInclusiveWords[phraseToAvoid] = row;
+    newNonInclusiveWords[phraseToAvoid] = row;
   }
+  nonInclusiveWords = newNonInclusiveWords;
 }
 
 function getDate() {
@@ -225,9 +238,9 @@ function getNudgeTextForNonInclusiveLanguage(flaggedWords) {
     const context = row.values[contextColumnId];
     const alternatives = row.values[alternativesColumnId];
     text += `• ${context}\n`;
-    suggestionText += `• Instead of \`${flaggedPhrase}\`, try ${alternatives}`;
+    suggestionText += `• Instead of \`${flaggedPhrase}\`, try ${alternatives}\n`;
   }
-  return text + '\n' + suggestionText;
+  return text + '\n' + suggestionText + '\n' + NUDGE_FOOTER;
 }
 
 app.event("message", async ({ event, client, context }) => {
@@ -301,7 +314,7 @@ app.command("/intro", async ({ command, ack, say }) => {
 
   console.log("Inclusivity bot app is running!");
 
-  // TODO: Refresh every day
   populateNonInclusiveWords();
+  setInterval(populateNonInclusiveWords, WORD_LIST_REFRESH_FREQUENCY_MS);
   console.log("Non-inclusive words populated");
 })();
