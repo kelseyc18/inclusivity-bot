@@ -1,0 +1,25 @@
+{
+  "name": "inclusivity-bot",
+  "version": "0.0.1",
+  "description": "A Slack bot that helps promote inclusive language",
+  "main": "app.js",
+  "scripts": {
+    "start": "node app.js"
+  },
+  "dependencies": {
+    "@slack/bolt": "^3.8.1",
+    "node-fetch": "2"
+  },
+  "engines": {
+    "node": "14"
+  },
+  "repository": {
+    "url": "https://glitch.com/edit/#!/inclusivity-bot"
+  },
+  "license": "MIT",
+  "keywords": [
+    "node",
+    "glitch",
+    "express"
+  ]
+}
